@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on Kevin Leung</title>
+    <title>Categories on 阿凯</title>
     <link>https://liangzhongkai.github.io/categories/</link>
-    <description>Recent content in Categories on Kevin Leung</description>
+    <description>Recent content in Categories on 阿凯</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Sun, 06 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://liangzhongkai.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh</language>
+    <lastBuildDate>Sun, 18 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://liangzhongkai.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Example Category</title>
-      <link>https://liangzhongkai.github.io/categories/example-category/</link>
-      <pubDate>Sun, 06 Mar 2022 00:00:00 +0000</pubDate>
+      <title>linux</title>
+      <link>https://liangzhongkai.github.io/categories/linux/</link>
+      <pubDate>Sun, 18 Dec 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://liangzhongkai.github.io/categories/example-category/</guid>
+      <guid>https://liangzhongkai.github.io/categories/linux/</guid>
       <description></description>
     </item>
     

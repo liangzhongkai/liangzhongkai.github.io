@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on 阿凯</title>
-    <link>https://liangzhongkai.github.io/posts/</link>
-    <description>Recent content in Posts on 阿凯</description>
+    <title>bcc on 阿凯</title>
+    <link>https://liangzhongkai.github.io/tags/bcc/</link>
+    <description>Recent content in bcc on 阿凯</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh</language>
-    <lastBuildDate>Sun, 18 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://liangzhongkai.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 18 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://liangzhongkai.github.io/tags/bcc/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>bcc多用途工具</title>
       <link>https://liangzhongkai.github.io/posts/hello-world/</link>
