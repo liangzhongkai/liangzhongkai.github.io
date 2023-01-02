@@ -5,7 +5,7 @@ theme = "ananke"
 publishDir = "docs"
 
 SectionPagesMenu = "main"
-Paginate = 3 # this is set low for demonstrating with dummy content. Set to a higher number
+Paginate = 3
 googleAnalytics = ""
 enableRobotsTXT = true
 
@@ -16,7 +16,7 @@ enableRobotsTXT = true
     weight = 1
     contentDir = "content/zh"
   [languages.en]
-    title = "kevin leung"
+    title = "kevin"
     weight = 2
     contentDir = "content/en"
 

@@ -1,0 +1,12 @@
+
+<div class="figure figure--fullWidth">
+  <img class="figure-img" 
+  src="{{ .Get "src" }}" 
+  {{ with (.Get "width") }}width="{{ . }}"{{ end }}
+  {{ with (.Get "height") }}height="{{ . }}"{{ end }}
+  {{ with (.Get "alt") }}alt="{{ . }}"{{ end }} 
+  />
+  {{ with (.Get "title") }}
+    <span class="ph7">{{ . }}</span>
+  {{ end }}
+</div>
