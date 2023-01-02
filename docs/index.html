@@ -6,7 +6,7 @@
     
     <title>Kevin Leung | 阿凯</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="description" content="写点好玩的东西">
+    <meta name="description" content="测试 性能 量化 分析">
     <meta name="generator" content="Hugo 0.108.0">
     
     
@@ -35,13 +35,13 @@
     
     
     <meta property="og:title" content="Kevin Leung" />
-<meta property="og:description" content="写点好玩的东西" />
+<meta property="og:description" content="测试 性能 量化 分析" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://liangzhongkai.github.io/" /><meta property="og:site_name" content="阿凯" />
 <meta itemprop="name" content="Kevin Leung">
-<meta itemprop="description" content="写点好玩的东西"><meta name="twitter:card" content="summary"/>
+<meta itemprop="description" content="测试 性能 量化 分析"><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kevin Leung"/>
-<meta name="twitter:description" content="写点好玩的东西"/>
+<meta name="twitter:description" content="测试 性能 量化 分析"/>
 
 	
   </head>
@@ -74,6 +74,12 @@
 
       
         <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/" title="Kevin Leung 页">
+              Kevin Leung
+            </a>
+          </li>
           
           <li class="list f5 f4-ns fw4 dib pr3">
             <a class="hover-white no-underline white-90" href="/contact/" title="Contact 页">
@@ -117,7 +123,7 @@
         </h1>
         
           <h2 class="fw1 f5 f3-l white-80 measure-wide-l center mt3">
-            写点好玩的东西
+            测试 性能 量化 分析
           </h2>
         
       </div>
@@ -159,23 +165,50 @@
   <div class="db pv4 ph3 ph0-l no-underline dark-gray">
     <div class="flex flex-column flex-row-ns">
       
-          
-        <div class="pr3-ns mb4 mb0-ns w-100 w-40-ns">
-          <a href="/posts/hello-world/" class="db grow">
-            <img src="https://liangzhongkai.github.io/img/first-post.jpg" class="img" alt="image from bcc多用途工具">
-          </a>
-        </div>
-      
-      <div class="blah w-100 w-60-ns pl3-ns">
+      <div class="blah w-100">
         <h1 class="f3 fw1 athelas mt0 lh-title">
-          <a href="/posts/hello-world/" class="color-inherit dim link">
-            bcc多用途工具
+          <a href="/posts/c_plus_plus/" class="color-inherit dim link">
+            C&#43;&#43;
             </a>
         </h1>
         <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
-          
+          C&#43;&#43;
         </div>
-          <a href="/posts/hello-world/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">继续阅读</a>
+          <a href="/posts/c_plus_plus/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">继续阅读</a>
+        
+      </div>
+    </div>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb4">
+            
+<article class="bb b--black-10">
+  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
+    <div class="flex flex-column flex-row-ns">
+      
+      <div class="blah w-100">
+        <h1 class="f3 fw1 athelas mt0 lh-title">
+          <a href="/posts/linux_time/" class="color-inherit dim link">
+            linux时间系统
+            </a>
+        </h1>
+        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
+          如何定义秒 在定义秒这个术语的时候是有两个标准的
+以铯133的振荡频率来定义秒 依据地球自转和公转来定义秒 对于linux kernel而言，它采用了第一种定义的秒，并且参考点（linux epoch）也是UTC时间，UTC这个时间标准就是采用第一种方式来定义时间的。
+POSIX标准曾经将时间参考点设定为1970年1月1日0点0分0秒（GMT），GMT就是采用第二种方法定义时间的，后面修正为UTC时间。
+linux时钟 硬件时钟：RTC(real time clock)
+hardware clock, real time clock, RTC, BIOS clock以及CMOS clock等，在目前主流的服务器都采用RTC芯片实现，PC主板的芯片+电源供电。独立于OS，是最底层的时钟数据 RTC可以得到date and time. 可以在设备文件/dev/rtc进行RTC编程。也可以通过/sbin/clock配置时钟
+软件时钟：OS时钟(os clock)
+也是我们平时说的系统时间。PC主板的一个定时/计数芯片(OS时钟的基本单位就是该芯片的计数周期) -&gt; 脉冲信号 -&gt; 中断控制器 -&gt; 中断信号 -&gt; CPU call 时间中断服务程序维持OS时钟的正常工作
+RTC是OS时钟的时间基准，操作系统通过读取RTC来初始化OS时钟，此后二者保持同步运行&lt;每隔一个固定时间会刷新或校正RTC中的信息&gt;
+。。。。。。
+linux, C++ 提供的时间函数都有一个致命的问题，它是在一个变频的cpu上衍生出来的。
+有一个更加高的精度：rdtsc。它获取的是指令级别的精度。
+        </div>
+          <a href="/posts/linux_time/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">继续阅读</a>
         
       </div>
     </div>
@@ -195,7 +228,7 @@
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
   <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://liangzhongkai.github.io/" >
-    &copy;  阿凯 2022 
+    &copy;  阿凯 2023 
   </a>
     <div>
 <div class="ananke-socials">

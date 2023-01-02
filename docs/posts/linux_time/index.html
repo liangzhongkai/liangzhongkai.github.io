@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     
-    <title>linux | 阿凯</title>
+    <title>linux时间系统 | 阿凯</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="description" content="The last theme you&#39;ll ever need. Maybe.">
+    <meta name="description" content="time">
     <meta name="generator" content="Hugo 0.108.0">
     
     
@@ -29,19 +29,19 @@
 
     
     
-      <link href="/categories/linux/index.xml" rel="alternate" type="application/rss+xml" title="阿凯" />
-      <link href="/categories/linux/index.xml" rel="feed" type="application/rss+xml" title="阿凯" />
-      
-    
-    
-    <meta property="og:title" content="linux" />
-<meta property="og:description" content="The last theme you&#39;ll ever need. Maybe." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://liangzhongkai.github.io/categories/linux/" /><meta property="og:site_name" content="阿凯" />
-<meta itemprop="name" content="linux">
-<meta itemprop="description" content="The last theme you&#39;ll ever need. Maybe."><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="linux"/>
-<meta name="twitter:description" content="The last theme you&#39;ll ever need. Maybe."/>
+    <meta property="og:title" content="linux时间系统" />
+<meta property="og:description" content="time" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://liangzhongkai.github.io/posts/linux_time/" /><meta property="article:section" content="posts" />
+
+<meta property="og:site_name" content="阿凯" />
+<meta itemprop="name" content="linux时间系统">
+<meta itemprop="description" content="time">
+
+<meta itemprop="wordCount" content="44">
+<meta itemprop="keywords" content="time,linux," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="linux时间系统"/>
+<meta name="twitter:description" content="time"/>
 
 	
   </head>
@@ -49,9 +49,11 @@
   <body class="ma0 avenir bg-near-white">
 
     
+   
+  
 
   <header>
-    <div class="pb3-m pb6-l bg-black">
+    <div class="bg-black">
       <nav class="pv3 ph3 ph4-ns" role="navigation">
   <div class="flex-l justify-between items-center center">
     <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
@@ -107,55 +109,95 @@
   </div>
 </nav>
 
-      <div class="tc-l pv3 ph3 ph4-ns">
-        <h1 class="f2 f-subheadline-l fw2 light-silver mb0 lh-title">
-          linux
-        </h1>
-        
-      </div>
     </div>
   </header>
 
 
+
     <main class="pb7" role="main">
       
-  <article class="cf pa3 pa4-m pa4-l">
-    <div class="measure-wide-l center f4 lh-copy nested-copy-line-height nested-links mid-gray">
-      <p>标签为“linux”的页面如下</p>
-    </div>
-  </article>
-  <div class="mw8 center">
-    <section class="flex-ns flex-wrap justify-around mt5">
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        POSTS
+      </aside>
       
-        <div class="relative w-100  mb4 bg-white">
-          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
-  <div class="bg-white mb3 pa4 gray overflow-hidden">
-    <span class="f6 db">Posts</span>
-    <h1 class="f3 near-black">
-      <a href="/posts/linux_time/" class="link black dim">
-        linux时间系统
-      </a>
-    </h1>
-    <div class="nested-links f5 lh-copy nested-copy-line-height">
-      如何定义秒 在定义秒这个术语的时候是有两个标准的
-以铯133的振荡频率来定义秒 依据地球自转和公转来定义秒 对于linux kernel而言，它采用了第一种定义的秒，并且参考点（linux epoch）也是UTC时间，UTC这个时间标准就是采用第一种方式来定义时间的。
-POSIX标准曾经将时间参考点设定为1970年1月1日0点0分0秒（GMT），GMT就是采用第二种方法定义时间的，后面修正为UTC时间。
-linux时钟 硬件时钟：RTC(real time clock)
-hardware clock, real time clock, RTC, BIOS clock以及CMOS clock等，在目前主流的服务器都采用RTC芯片实现，PC主板的芯片+电源供电。独立于OS，是最底层的时钟数据 RTC可以得到date and time. 可以在设备文件/dev/rtc进行RTC编程。也可以通过/sbin/clock配置时钟
-软件时钟：OS时钟(os clock)
-也是我们平时说的系统时间。PC主板的一个定时/计数芯片(OS时钟的基本单位就是该芯片的计数周期) -&gt; 脉冲信号 -&gt; 中断控制器 -&gt; 中断信号 -&gt; CPU call 时间中断服务程序维持OS时钟的正常工作
-RTC是OS时钟的时间基准，操作系统通过读取RTC来初始化OS时钟，此后二者保持同步运行&lt;每隔一个固定时间会刷新或校正RTC中的信息&gt;
-。。。。。。
-linux, C++ 提供的时间函数都有一个致命的问题，它是在一个变频的cpu上衍生出来的。
-有一个更加高的精度：rdtsc。它获取的是指令级别的精度。
-    </div>
-  </div>
-</div>
 
-        </div>
-      
-    </section>
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
   </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">linux时间系统</h1>
+      
+      
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><h1 id="如何定义秒">如何定义秒</h1>
+<p>在定义秒这个术语的时候是有两个标准的</p>
+<ol>
+<li>以铯133的振荡频率来定义秒</li>
+<li>依据地球自转和公转来定义秒</li>
+</ol>
+<p>对于linux kernel而言，它采用了第一种定义的秒，并且参考点（linux epoch）也是UTC时间，UTC这个时间标准就是采用第一种方式来定义时间的。</p>
+<p>POSIX标准曾经将时间参考点设定为1970年1月1日0点0分0秒（GMT），GMT就是采用第二种方法定义时间的，后面修正为UTC时间。</p>
+<h1 id="linux时钟">linux时钟</h1>
+<p>硬件时钟：RTC(real time clock)</p>
+<p>hardware clock, real time clock, RTC, BIOS clock以及CMOS clock等，在目前主流的服务器都采用RTC芯片实现，PC主板的芯片+电源供电。独立于OS，是最底层的时钟数据
+RTC可以得到date and time. 可以在设备文件/dev/rtc进行RTC编程。也可以通过/sbin/clock配置时钟</p>
+<p>软件时钟：OS时钟(os clock)</p>
+<p>也是我们平时说的系统时间。PC主板的一个定时/计数芯片(OS时钟的基本单位就是该芯片的计数周期) -&gt; 脉冲信号 -&gt; 中断控制器 -&gt; 中断信号 -&gt; CPU call 时间中断服务程序维持OS时钟的正常工作</p>
+<p><a href="https://blog.csdn.net/m0_37806112/article/details/80397338">RTC是OS时钟的时间基准，操作系统通过读取RTC来初始化OS时钟，此后二者保持同步运行&lt;每隔一个固定时间会刷新或校正RTC中的信息&gt;</a></p>
+<p>。。。。。。</p>
+<p>linux, C++ 提供的时间函数都有一个致命的问题，它是在一个变频的cpu上衍生出来的。</p>
+<p>有一个更加高的精度：rdtsc。它获取的是指令级别的精度。</p>
+<ul class="pa0">
+  
+   <li class="list di">
+     <a href="/tags/time/" class="link f5 grow no-underline br-pill ba ph3 pv2 mb2 dib black sans-serif">time</a>
+   </li>
+  
+   <li class="list di">
+     <a href="/tags/linux/" class="link f5 grow no-underline br-pill ba ph3 pv2 mb2 dib black sans-serif">linux</a>
+   </li>
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      <div id="utteranc"></div>
+<script src="https://utteranc.es/client.js"
+repo="liangzhongkai/liangzhongkai.github.io"
+issue-term="title"
+theme="github-light"
+crossorigin="anonymous"
+async>
+</script>
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
 
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">

@@ -50,9 +50,8 @@
 
     
 
-  
-  <header class="cover bg-top" style="background-image: url('https://liangzhongkai.github.io/img/index.jpg');">
-    <div class="bg-black-60">
+  <header>
+    <div class="pb3-m pb6-l bg-black">
       <nav class="pv3 ph3 ph4-ns" role="navigation">
   <div class="flex-l justify-between items-center center">
     <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
@@ -65,6 +64,12 @@
 
       
         <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/" title="Kevin Leung 页">
+              Kevin Leung
+            </a>
+          </li>
           
           <li class="list f5 f4-ns fw4 dib pr3">
             <a class="hover-white no-underline white-90" href="/contact/" title="Contact 页">
@@ -102,8 +107,8 @@
   </div>
 </nav>
 
-      <div class="tc-l pv4 pv6-l ph3 ph4-ns">
-        <h1 class="f2 f-subheadline-l fw2 white-90 mb0 lh-title">
+      <div class="tc-l pv3 ph3 ph4-ns">
+        <h1 class="f2 f-subheadline-l fw2 light-silver mb0 lh-title">
           linux
         </h1>
         
@@ -127,12 +132,22 @@
   <div class="bg-white mb3 pa4 gray overflow-hidden">
     <span class="f6 db">Posts</span>
     <h1 class="f3 near-black">
-      <a href="/posts/hello-world/" class="link black dim">
-        bcc多用途工具
+      <a href="/posts/linux_time/" class="link black dim">
+        linux时间系统
       </a>
     </h1>
     <div class="nested-links f5 lh-copy nested-copy-line-height">
-      
+      如何定义秒 在定义秒这个术语的时候是有两个标准的
+以铯133的振荡频率来定义秒 依据地球自转和公转来定义秒 对于linux kernel而言，它采用了第一种定义的秒，并且参考点（linux epoch）也是UTC时间，UTC这个时间标准就是采用第一种方式来定义时间的。
+POSIX标准曾经将时间参考点设定为1970年1月1日0点0分0秒（GMT），GMT就是采用第二种方法定义时间的，后面修正为UTC时间。
+linux时钟 硬件时钟：RTC(real time clock)
+hardware clock, real time clock, RTC, BIOS clock以及CMOS clock等，在目前主流的服务器都采用RTC芯片实现，PC主板的芯片+电源供电。独立于OS，是最底层的时钟数据 RTC可以得到date and time. 可以在设备文件/dev/rtc进行RTC编程。也可以通过/sbin/clock配置时钟
+软件时钟：OS时钟(os clock)
+也是我们平时说的系统时间。PC主板的一个定时/计数芯片(OS时钟的基本单位就是该芯片的计数周期) -&gt; 脉冲信号 -&gt; 中断控制器 -&gt; 中断信号 -&gt; CPU call 时间中断服务程序维持OS时钟的正常工作
+RTC是OS时钟的时间基准，操作系统通过读取RTC来初始化OS时钟，此后二者保持同步运行&lt;每隔一个固定时间会刷新或校正RTC中的信息&gt;
+。。。。。。
+linux, C++ 提供的时间函数都有一个致命的问题，它是在一个变频的cpu上衍生出来的。
+有一个更加高的精度：rdtsc。它获取的是指令级别的精度。
     </div>
   </div>
 </div>
@@ -146,7 +161,7 @@
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
   <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://liangzhongkai.github.io/" >
-    &copy;  阿凯 2022 
+    &copy;  阿凯 2023 
   </a>
     <div>
 <div class="ananke-socials">

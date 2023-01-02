@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>C&#43;&#43; on 阿凯</title>
+    <link>https://liangzhongkai.github.io/categories/c&#43;&#43;/</link>
+    <description>Recent content in C&#43;&#43; on 阿凯</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh</language>
+    <lastBuildDate>Fri, 30 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://liangzhongkai.github.io/categories/c++/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>https://liangzhongkai.github.io/posts/c_plus_plus/</link>
+      <pubDate>Fri, 30 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://liangzhongkai.github.io/posts/c_plus_plus/</guid>
+      <description>C&amp;#43;&amp;#43;</description>
+    </item>
+    
+  </channel>
+</rss>

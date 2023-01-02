@@ -6,11 +6,20 @@
     <description>Recent content in Categories on 阿凯</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh</language>
-    <lastBuildDate>Sun, 18 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://liangzhongkai.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 30 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://liangzhongkai.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>https://liangzhongkai.github.io/categories/c&#43;&#43;/</link>
+      <pubDate>Fri, 30 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://liangzhongkai.github.io/categories/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>linux</title>
       <link>https://liangzhongkai.github.io/categories/linux/</link>
-      <pubDate>Sun, 18 Dec 2022 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://liangzhongkai.github.io/categories/linux/</guid>
       <description></description>
