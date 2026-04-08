@@ -1,0 +1,108 @@
+/* 正文字体与字号（覆盖 PaperMod reset / post 样式） */
+body {
+    font-family: "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI",
+        "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 代码：等宽单独一套，略小于正文 */
+.post-content .highlight pre code,
+.post-content pre code {
+    font-family: ui-monospace, "Cascadia Code", "Cascadia Mono", "SF Mono", SFMono-Regular,
+        Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+}
+
+.post-content code {
+    font-size: 0.85em;
+}
+
+/* 站点标题与导航 */
+.logo a {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+#menu a {
+    font-size: 15px;
+}
+
+/* 文章页标题与层级 */
+.post-title {
+    font-size: 28px;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+}
+
+.post-meta,
+.breadcrumbs {
+    font-size: 13px;
+}
+
+.breadcrumbs a {
+    font-size: 14px;
+}
+
+.post-content h1 {
+    font-size: 28px;
+}
+
+.post-content h2 {
+    font-size: 21px;
+}
+
+.post-content h3 {
+    font-size: 18px;
+}
+
+.post-content h4 {
+    font-size: 15px;
+}
+
+.post-content h5 {
+    font-size: 14px;
+}
+
+.post-content h6 {
+    font-size: 13px;
+}
+
+/* 首页首屏与列表卡片 */
+.first-entry .entry-header h1 {
+    font-size: 26px;
+}
+
+.first-entry .entry-content {
+    font-size: 15px;
+}
+
+.entry-header h2 {
+    font-size: 20px;
+}
+
+.entry-content {
+    font-size: 13px;
+}
+
+/* 目录与表格略收紧 */
+.toc .inner {
+    font-size: 14px;
+}
+
+.post-content table th,
+.post-content table:not(.highlighttable, .highlight table, .gist .highlight) td {
+    font-size: 14px;
+}
+
+.post-content figure > figcaption {
+    font-size: 15px;
+}
+
+.post-content figure > figcaption > p {
+    font-size: 13px;
+}
