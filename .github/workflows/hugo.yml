@@ -46,6 +46,11 @@ jobs:
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
+      - name: Verify site output
+        run: |
+          test -f public/index.html || { echo "::error::public/index.html missing — check Hugo build logs"; ls -la public || true; exit 1; }
+          ls -la public | head -20
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
