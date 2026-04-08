@@ -15,7 +15,16 @@ paginate = 10
 [markup.goldmark.renderer]
   unsafe = true # 允许在 Markdown 中内嵌 HTML (用于数学公式或复杂图表)
 
+# 保留 $...$ / $$...$$ / \(...\) / \[...\] 中的 LaTeX，交给 MathJax 渲染（见 layouts/partials/math.html）
+[markup.goldmark.extensions.passthrough]
+  enable = true
+
+[markup.goldmark.extensions.passthrough.delimiters]
+  block = [['\[', '\]'], ['$$', '$$']]
+  inline = [['\(', '\)'], ['$', '$']]
+
 [params]
+  math = true
   env = "production"
   defaultTheme = "light"
   disableThemeToggle = true # 禁用暗黑模式切换，保持 Barry Revzin 式的纯净
