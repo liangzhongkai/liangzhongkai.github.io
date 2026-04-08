@@ -1,0 +1,22 @@
+# Hugo
+/public/
+/resources/_gen/
+.hugo_build.lock
+hugo_stats.json
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Local env / secrets (if you add any later)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Optional local tooling
+node_modules/

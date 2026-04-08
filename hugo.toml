@@ -1,0 +1,39 @@
+baseURL = 'https://liangzhongkai.github.io/'
+languageCode = 'zh-cn'
+title = 'Kevin Leung'
+theme = 'PaperMod'
+paginate = 10
+
+# 开启 C++ / Rust 代码高亮增强
+[markup.highlight]
+  codeFences = true
+  guessSyntax = true
+  lineNos = false
+  style = "github"
+  noClasses = false
+
+[markup.goldmark.renderer]
+  unsafe = true # 允许在 Markdown 中内嵌 HTML (用于数学公式或复杂图表)
+
+[params]
+  env = "production"
+  defaultTheme = "light"
+  disableThemeToggle = true # 禁用暗黑模式切换，保持 Barry Revzin 式的纯净
+  ShowReadingTime = true
+  ShowToc = true            # 开启长文目录 (对源码分析很有用)
+  TocOpen = false           # 默认折叠目录
+  ShowCodeCopyButtons = true # 允许读者一键复制代码
+  
+  # 顶部导航栏配置
+  [[menu.main]]
+    name = "C++"
+    url = "/tags/cpp/"
+    weight = 10
+  [[menu.main]]
+    name = "Rust"
+    url = "/tags/rust/"
+    weight = 20
+  [[menu.main]]
+    name = "Web3"
+    url = "/tags/web3/"
+    weight = 30
