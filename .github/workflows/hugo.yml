@@ -5,10 +5,9 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+# 推送到 gh-pages 分支；仓库 Settings → Pages 须选「Deploy from a branch」→ 分支 gh-pages → / (root)
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: "pages"
@@ -19,7 +18,7 @@ defaults:
     shell: bash
 
 jobs:
-  build:
+  build-deploy:
     runs-on: ubuntu-latest
     env:
       HUGO_VERSION: 0.160.0 # PaperMod requires Hugo >= 0.146.0
@@ -27,11 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: recursive # 确保拉取 PaperMod 主题
-
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v4
+          submodules: recursive
 
       - name: Install Hugo CLI
         run: |
@@ -42,27 +37,16 @@ jobs:
         env:
           HUGO_ENVIRONMENT: production
         run: |
-          hugo \
-            --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
+          hugo --minify --baseURL "https://liangzhongkai.github.io/"
 
       - name: Verify site output
         run: |
-          test -f public/index.html || { echo "::error::public/index.html missing — check Hugo build logs"; ls -la public || true; exit 1; }
+          test -f public/index.html || { echo "::error::public/index.html missing"; ls -la public || true; exit 1; }
           ls -la public | head -20
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Push to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ./public
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          force_orphan: true
