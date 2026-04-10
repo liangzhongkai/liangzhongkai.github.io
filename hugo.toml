@@ -4,6 +4,9 @@ title = 'Kevin Leung'
 theme = 'PaperMod'
 paginate = 10
 
+# 生产构建默认不包含「发布时刻晚于当前时间」的文章；见 https://gohugo.io/getting-started/configuration/#configure-build-2
+buildFuture = true
+
 # 开启 C++ / Rust 代码高亮增强
 [markup.highlight]
   codeFences = true
