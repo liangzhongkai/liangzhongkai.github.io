@@ -1,7 +1,7 @@
 ---
 date: "2026-04-10T10:00:00+08:00"
 draft: false
-title: "Uniswap V4 Custom Accounting 完全深度解析"
+title: "Uniswap V4 Custom Accounting"
 tags: ["web3"]
 summary: "基于 v4-core 源码，系统拆解 Flash Accounting、BalanceDelta 与 BeforeSwapDelta 的符号方向，以及 swap、hook 与 settle/take/clear 的记账与结算逻辑。"
 ---
