@@ -3,6 +3,7 @@ date = '2026-04-10T10:00:00+08:00'
 draft = false
 title = 'Uniswap V4 Dynamic Fees'
 tags = ['web3']
+summary = '基于 v4-core 源码，说明动态费率标记位、updateDynamicLPFee 与 beforeSwap 覆盖两条路径，以及费率校验与权限。'
 +++
 
 # Uniswap V4 Dynamic Fees

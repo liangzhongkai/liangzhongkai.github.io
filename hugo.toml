@@ -27,6 +27,8 @@ buildFuture = true
   inline = [['\(', '\)'], ['$', '$']]
 
 [params]
+  # 禁用首页「第一篇」特殊样式（first-entry），与下方文章统一为白底卡片 post-entry
+  disableSpecial1stPost = true
   math = true
   env = "production"
   defaultTheme = "light"
