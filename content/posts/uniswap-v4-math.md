@@ -123,7 +123,7 @@ library FixedPoint128 {
 
 ```mermaid
 flowchart TB
-  A["a, b"] --> MUL["512 位乘积<br/>prod0 = low256(a·b)<br/>prod1 = high256(a·b)"]
+  A["a, b"] --> MUL["512 位乘积；prod0 = low256(a·b)；prod1 = high256(a·b)"]
   MUL --> CHK{"denom > prod1 ?"}
   CHK -->|否| REV["revert"]
   CHK -->|是| FAST{"prod1 == 0 ?"}
@@ -701,8 +701,8 @@ flowchart TB
 ```mermaid
 flowchart LR
   Z{"zeroForOne ?"}
-  Z -->|是| MAX["target = max(next, limit)<br/>价格走低，不低于 limit"]
-  Z -->|否| MIN["target = min(next, limit)<br/>价格走高，不高于 limit"]
+  Z -->|是| MAX["target = max(next, limit)；价格走低，不低于 limit"]
+  Z -->|否| MIN["target = min(next, limit)；价格走高，不高于 limit"]
 ```
 
 ### `computeSwapStep`
@@ -853,9 +853,9 @@ flowchart TB
 flowchart LR
   subgraph bits["uint24 LP fee 位示意（从高到低）"]
     direction LR
-    B23["bit 23<br/>DYNAMIC_FEE_FLAG"]
-    B22["bit 22<br/>OVERRIDE_FEE_FLAG"]
-    LOW["低位<br/>费率 pips / 掩码后数值"]
+    B23["bit 23：DYNAMIC_FEE_FLAG"]
+    B22["bit 22：OVERRIDE_FEE_FLAG"]
+    LOW["低位：费率 pips / 掩码后数值"]
   end
   B23 --- B22 --- LOW
 ```
