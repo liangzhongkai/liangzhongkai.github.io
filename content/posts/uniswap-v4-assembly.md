@@ -594,10 +594,11 @@ function extsload(bytes32[] calldata slots) external view returns (bytes32[] mem
         memPtr := add(memPtr, 0x40)
 
         let slotsData := slots.offset        // calldata offset
-        for { let i := 0 } lt(i, slots.length) { i := add(i, 1) } {
-            let slot := calldataload(add(slotsData, mul(i, 0x20)))
-            mstore(memPtr, sload(slot))
-            memPtr := add(memPtr, 0x20)
+        for {} 1 {} {
+            mstore(memptr, sload(calldataload(calldataptr)))
+            memptr := add(memptr, 0x20)
+            calldataptr := add(calldataptr, 0x20)
+            if iszero(lt(memptr, end)) { break }
         }
         // 更新 fmp
         mstore(0x40, memPtr)
