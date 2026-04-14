@@ -1,4 +1,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  .post-comments {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-comments-title {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .post-comments-body {
+    margin-top: 1rem;
+  }
+
+  .post-comments-fallback {
+    margin-top: 0;
+  }
+</style>
 {{- if .Param "math" }}{{ partialCached "math.html" . }}{{ end -}}

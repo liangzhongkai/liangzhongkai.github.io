@@ -1,0 +1,4 @@
+{{- if site.Params.busuanzi.enabled -}}
+{{- $label := site.Params.busuanzi.pageViewLabel | default "views" -}}
+<span id="busuanzi_container_page_pv">{{ $label }} <span id="busuanzi_value_page_pv"></span></span>
+{{- end -}}

@@ -1,0 +1,41 @@
+{{- $giscus := site.Params.giscus -}}
+{{- $enabled := $giscus.enabled | default false -}}
+{{- $repo := $giscus.repo | default "" -}}
+{{- $repoId := $giscus.repoId | default "" -}}
+{{- $category := $giscus.category | default "" -}}
+{{- $categoryId := $giscus.categoryId | default "" -}}
+{{- $ready := and $enabled $repo $repoId $category $categoryId -}}
+
+{{- if or $ready hugo.IsServer (ne site.Params.env "production") }}
+<section class="comments post-comments">
+  <h2 class="post-comments-title">评论</h2>
+  {{- if $ready }}
+  <div class="post-comments-body">
+    <script
+      src="https://giscus.app/client.js"
+      data-repo="{{ $repo }}"
+      data-repo-id="{{ $repoId }}"
+      data-category="{{ $category }}"
+      data-category-id="{{ $categoryId }}"
+      data-mapping="{{ $giscus.mapping | default "pathname" }}"
+      data-strict="{{ $giscus.strict | default "0" }}"
+      data-reactions-enabled="{{ $giscus.reactionsEnabled | default "1" }}"
+      data-emit-metadata="{{ $giscus.emitMetadata | default "0" }}"
+      data-input-position="{{ $giscus.inputPosition | default "top" }}"
+      data-theme="{{ $giscus.theme | default "light" }}"
+      data-lang="{{ $giscus.lang | default "zh-CN" }}"
+      data-loading="{{ $giscus.loading | default "lazy" }}"
+      crossorigin="anonymous"
+      async>
+    </script>
+  </div>
+  {{- else }}
+  <div class="post-content post-comments-fallback">
+    <blockquote>
+      <p><strong>评论区暂未启用：</strong>当前页面没有检测到完整的 Giscus 配置，所以生产环境不会加载评论脚本。</p>
+      <p>请检查 <code>hugo.toml</code> 中的 <code>params.giscus</code> 是否完整，尤其是 <code>enabled</code>、<code>repoId</code> 和 <code>categoryId</code>。</p>
+    </blockquote>
+  </div>
+  {{- end }}
+</section>
+{{- end }}

@@ -29,6 +29,7 @@ buildFuture = true
 [params]
   # 禁用首页「第一篇」特殊样式（first-entry），与下方文章统一为白底卡片 post-entry
   disableSpecial1stPost = true
+  comments = true
   math = true
   env = "production"
   defaultTheme = "light"
@@ -37,6 +38,26 @@ buildFuture = true
   ShowToc = true            # 开启长文目录 (对源码分析很有用)
   TocOpen = false           # 默认折叠目录
   ShowCodeCopyButtons = true # 允许读者一键复制代码
+
+  [params.busuanzi]
+    enabled = true
+    pageViewLabel = "浏览"
+
+  [params.giscus]
+    # 已使用 GitHub Discussions 的 Announcements 分类；如切换分类，记得同时更新 category 与 categoryId。
+    enabled = true
+    repo = "liangzhongkai/liangzhongkai.github.io"
+    repoId = "R_kgDOR8tG5Q"
+    category = "Announcements"
+    categoryId = "DIC_kwDOR8tG5c4C6zDR"
+    mapping = "pathname"
+    strict = "0"
+    reactionsEnabled = "1"
+    emitMetadata = "0"
+    inputPosition = "top"
+    theme = "light"
+    lang = "zh-CN"
+    loading = "lazy"
   
   # 顶部导航栏配置
   [[menu.main]]
