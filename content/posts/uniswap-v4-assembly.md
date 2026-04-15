@@ -563,47 +563,48 @@ function extsload(bytes32 startSlot, uint256 nSlots)
     returns (bytes32[] memory)
 {
     assembly ("memory-safe") {
-        // 构造 ABI 编码的 bytes32[]
-        mstore(0x00, 0x20)       // offset to array data
-        mstore(0x20, nSlots)     // array length
-
-        let memPtr := 0x40
-        let endSlot := add(startSlot, nSlots)
-
-        for { let i := startSlot } lt(i, endSlot) { i := add(i, 1) } {
-            mstore(memPtr, sload(i))          // 逐 slot SLOAD 写入
-            memPtr := add(memPtr, 0x20)
+        let memptr := mload(0x40)
+        let start := memptr
+        // A left bit-shift of 5 is equivalent to multiplying by 32 but costs less gas.
+        let length := shl(5, nSlots)
+        // The abi offset of dynamic array in the returndata is 32.
+        mstore(memptr, 0x20)
+        // Store the length of the array returned
+        mstore(add(memptr, 0x20), nSlots)
+        // update memptr to the first location to hold a result
+        memptr := add(memptr, 0x40)
+        let end := add(memptr, length)
+        for {} 1 {} {
+            mstore(memptr, sload(startSlot))
+            memptr := add(memptr, 0x20)
+            startSlot := add(startSlot, 1)
+            if iszero(lt(memptr, end)) { break }
         }
-
-        return(0x00, memPtr)     // 从 slot 0 开始直接返回所有数据
-        // 注意：没有更新 free memory pointer（0x40）
-        // 因为 return 后执行立即终止，不存在后续 memory 操作
+        return(start, sub(end, start))
     }
 }
 
 // 重载 3：离散 slot 列表（sparse extsload）
 function extsload(bytes32[] calldata slots) external view returns (bytes32[] memory) {
     assembly ("memory-safe") {
-        let memPtr := mload(0x40)            // 获取 fmp
-        let results := memPtr
-        // bytes32[] 的返回值仍然是一个动态类型，最外层先放 offset
-        mstore(memPtr, 0x20)
-        // 再写数组长度
-        mstore(add(memPtr, 0x20), slots.length)
-        // 元素区从 results + 0x40 开始
-        memPtr := add(memPtr, 0x40)
-
-        let slotsData := slots.offset        // calldata offset
+        let memptr := mload(0x40)
+        let start := memptr
+        // for abi encoding the response - the array will be found at 0x20
+        mstore(memptr, 0x20)
+        // next we store the length of the return array
+        mstore(add(memptr, 0x20), slots.length)
+        // update memptr to the first location to hold an array entry
+        memptr := add(memptr, 0x40)
+        // A left bit-shift of 5 is equivalent to multiplying by 32 but costs less gas.
+        let end := add(memptr, shl(5, slots.length))
+        let calldataptr := slots.offset
         for {} 1 {} {
             mstore(memptr, sload(calldataload(calldataptr)))
             memptr := add(memptr, 0x20)
             calldataptr := add(calldataptr, 0x20)
             if iszero(lt(memptr, end)) { break }
         }
-        // 更新 fmp
-        mstore(0x40, memPtr)
-        // 返回
-        return(results, sub(memPtr, results))
+        return(start, sub(end, start))
     }
 }
 ```
