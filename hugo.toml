@@ -63,12 +63,16 @@ buildFuture = true
   [[menu.main]]
     name = "C++"
     url = "/tags/cpp/"
-    weight = 10
+    weight = 20
   [[menu.main]]
     name = "Rust"
     url = "/tags/rust/"
-    weight = 20
+    weight = 30
   [[menu.main]]
     name = "Web3"
     url = "/tags/web3/"
     weight = 30
+  [[menu.main]]
+    name = "其他"
+    url = "/tags/other/"
+    weight = 10
