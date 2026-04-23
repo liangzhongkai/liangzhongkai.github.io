@@ -1,9 +1,8 @@
-+++
-date = '2026-04-23T10:00:00+08:00'
-draft = false
-title = 'UniswapX 深度剖析：从应用层到合约源码'
-tags = ['web3']
-+++
++++++  
+++date = '2026-04-23T10:00:00+08:00'++  
+++draft = true++  
+++title = 'UniswapX 深度剖析：从应用层到合约源码'++  
+++tags = ['web3']+++
 
 # UniswapX 深度剖析：从应用层到合约源码
 
@@ -503,15 +502,17 @@ if (order.info.validationContract != address(0)) {
 
 ## 11. 与传统 AMM 的本质差异
 
-| 维度 | Uniswap v3 | UniswapX |
-|------|-----------|---------|
-| 执行者 | 用户 | Filler |
-| Gas 付款方 | 用户 | Filler |
-| 路由决策 | 链上（固定路径） | 链下（Filler 自由选择） |
-| MEV 保护 | 无（sandwich 可行） | 天然隔离（price commitment） |
-| 流动性来源 | 单一链上 AMM | 任意来源（CEX、其他链、私有池） |
-| 价格保证 | 滑点参数（被动） | `minOutput` 承诺（主动） |
-| 跨链 | 不支持 | V2 支持 |
+
+| 维度      | Uniswap v3     | UniswapX               |
+| ------- | -------------- | ---------------------- |
+| 执行者     | 用户             | Filler                 |
+| Gas 付款方 | 用户             | Filler                 |
+| 路由决策    | 链上（固定路径）       | 链下（Filler 自由选择）        |
+| MEV 保护  | 无（sandwich 可行） | 天然隔离（price commitment） |
+| 流动性来源   | 单一链上 AMM       | 任意来源（CEX、其他链、私有池）      |
+| 价格保证    | 滑点参数（被动）       | `minOutput` 承诺（主动）     |
+| 跨链      | 不支持            | V2 支持                  |
+
 
 UniswapX 不是替代 AMM，而是在 AMM 之上建立了一个执行层。Filler 填单时可以从 Uniswap v3、Curve、私有做市商资金池等任意来源获取流动性。对用户来说是透明的。
 
@@ -610,4 +611,4 @@ UniswapX 的设计体现了三个值得深思的工程哲学：
 
 ---
 
-*源码参考：[Uniswap/UniswapX](https://github.com/Uniswap/UniswapX) | Permit2：[Uniswap/permit2](https://github.com/Uniswap/permit2)*
+*源码参考：[Uniswap/UniswapX](https://github.com/Uniswap/UniswapX) | Permit2：[Uniswap/permit2*](https://github.com/Uniswap/permit2)
