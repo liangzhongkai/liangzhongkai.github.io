@@ -1,19 +1,19 @@
 +++
 date = '2026-04-29T10:00:00+08:00'
 draft = false
-title = 'UniswapX：一条公理推出的协议'
+title = 'UniswapX：intent-based protocol'
 tags = ['web3']
 +++
 
-# UniswapX：一条公理推出的协议
+# UniswapX：intent-based protocol
 
 > 把"想做什么"和"怎么做到"分开 —— 整个 UniswapX 是这一句话的全部展开。
 >
-> 本文不是源码导读，而是一个**因果模型**：从一条公理出发，逐层推出协议的全部组件、安全边界与扩展形态。读完之后，你应该能用同一套推演方法去理解任何 intent-based 协议（CowSwap、1inch Fusion、Across、ERC-7683…）。
+> 从一条公理出发，逐层推出协议的全部组件、安全边界与扩展形态。可以同样解读 intent-based 协议（CowSwap、1inch Fusion、Across、ERC-7683…）。
 
 ---
 
-## 0. 因果链总览
+## 0. 总览
 
 ```
 [公理] 用户只关心结果，不关心路径
