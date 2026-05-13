@@ -13,7 +13,7 @@ tags = ['cpp']
 
 ## 1. x86 的内存模型：TSO
 
-x86 常放在 **TSO（Total Store Order）** 这一族里来讲：软件能指望的「全局先后」比 ARMv8、POWER 一类弱模型紧得多，但又**达不到**教科书式的顺序一致性（SC）。SC 要求所有核仿佛共享同一串读写次序；TSO 则仍允许 **下文第 3 节** 要展开的那种 **Store→Load** 隙缝——所以归根结底仍是弱序，只是 **「弱序里偏强的一档」**。
+x86 常放在 **TSO（Total Store Order）** 这一族里来讲：软件能指望的「全局先后」比 ARMv8、POWER 一类弱模型紧得多，但又**达不到**教科书式的顺序一致性（SC）。SC 要求所有核仿佛共享同一串读写次序；TSO 则仍允许 **§3** 要展开的那种 **Store→Load** 隙缝——所以归根结底仍是弱序，只是 **「弱序里偏强的一档」**。
 
 相对 SC，程序员在 x86 上最需要盯紧的就一件事：**同一线程里，本核较晚发起的 Load 的结果已对自身可见、也可被别的核观察到，但本核较早发起的 Store 却可能还没对其他核生效**——口语里常说 Store Buffer 或 *Store→Load* 重排。换个角度：外部观察者可能"先看到你后发的读的效果，再看到你先发的写"。另一方面，下面这些是在 **架构内存模型** 里写明、而不是某代流水线「碰巧如此」的约束：**较新 Load 不能越过较旧 Load；较新 Store 不能越过较旧 Store；较新 Store 也不能越过较旧 Load**。若要抠定义，请直接查 Intel/AMD SDM 第 8 章及你所用工具链对原子 intrinsic 的说明。
 
@@ -85,7 +85,7 @@ Core 0:                    Core 1:
 
 **执行时序**：
 
-1. Core 0 执行 `STORE x=1`：写入 Core 0 的 Store Buffer，**尚未提交到 Cache**，此时 Invalidate 消息还没有发出
+1. Core 0 执行 `STORE x=1`：写入 Core 0 的 Store Buffer，**尚未对其他核可见**（ISA 层的表述；何时发出一致性消息、协议内部如何握手均属微架构实现细节，此处不绑定）
 2. Core 1 执行 `STORE y=1`：写入 Core 1 的 Store Buffer，同上
 3. Core 0 执行 `LOAD y`：检查自己的 Store Buffer，无 y；去 Cache 读，此时 Core 1 的 `y=1` 还困在 Core 1 的 Store Buffer 里，Cache 中 y 仍为 0 → **读到 0**
 4. Core 1 执行 `LOAD x`：同理 → **读到 0**
@@ -158,7 +158,7 @@ lock xadd DWORD PTR [counter], eax
 
 1. 把读–改–写包成**原子**一步，并在全局可见次序上立起一个**很强的定序点**；口语常说它会「等还没对外露头的写先落定」，**具体管线故事以厂商手册为准**。
 2. 经一致性协议拿到该行的**排他**权限（可理解成走向 MESI 的 E/M），其它核上旧副本随之失效或被替换。
-3. 结果写回后，别核再读便是新值。
+3. 结果写回并经一致性协议传播后，别核再读便得新值。
 
 开销与所有「锁总线/锁缓存行」式 RMW 同量级；要不要把它和 **带栅栏的 `seq_cst` Store**（`mfence`、带 `LOCK` 的 `xchg` 等）比快慢，要看**具体 CPU 与前后文**，没法一句话定死。
 
@@ -225,7 +225,8 @@ Linux 在 x86 上的屏障宏充分利用了 TSO 的特性：
  * smp_mb()：完整内存屏障，需要真实 CPU 指令
  * 使用 LOCK 前缀的副作用而非 MFENCE，在部分 CPU 上更快
  * lock addl $0, 0(%rsp) 对栈顶执行一个无副作用的加法
- * 但 LOCK 前缀强制 Store Buffer 排空
+ * LOCK 前缀依 ISA 语义提供完整的内存次序保证（Store-Load 不得重排等）
+ * 不绑定"排空 Store Buffer"这一微架构描述——那是实现手段，不是契约
  */
 #define smp_mb()    \
     asm volatile("lock; addl $0,0(%%rsp)" ::: "memory", "cc")
@@ -275,7 +276,7 @@ Linux 在 x86 上的屏障宏充分利用了 TSO 的特性：
 线程 D: r3 = y.load(…); r4 = x.load(…);
 ```
 
-- 若四个位置用的是 **`relaxed`** 或**凑不出**那条「全体 `seq_cst` 共享的全序」的混搭，**允许**出现 **`r1=1, r2=0, r3=1, r4=0`**：两名读者对两次**互不依赖的写**「谁先谁后」各说各话——这在 **C++ 抽象机**上合法，也正是弱 ISA 上要加栅栏的经典动机。
+- 若四个位置用的是 **`relaxed`**，或**使用 release/acquire 但凑不出**那条「全体 `seq_cst` 共享的全序」的混搭（注意：纯 release/acquire 只建立局部 *happens-before*，同样**无法**禁止该结果——`acq_rel` 不够用），**允许**出现 **`r1=1, r2=0, r3=1, r4=0`**：两名读者对两次**互不依赖的写**「谁先谁后」各说各话——这在 **C++ 抽象机**上合法，也正是弱 ISA 上要加栅栏的经典动机。
 - 若四个操作都是 **`memory_order_seq_cst`**，则上述结果 **不合法**：`seq_cst` 的全序禁止两个读者对这两次 **独立写** 看到「互相矛盾的」全局先后。
 
 **别混了场景**：若只有一个线程先 `load x` 再 `load y`，即便看到 `1, 0`，多数时候只能说明 **`y` 的那笔写还没推到当前核的读路径上**，**不足以**单独论证「要不要上 `seq_cst`」。要讨论 **SC 全序**多付的那点语义，**至少**要拉来 **两名读者**，照上面 IRIW 那样「各读一遍、读序还相反」。
@@ -329,7 +330,7 @@ public:
 
         item = buffer_[t];
 
-        // release：把「已读消费槽」这一事实发布给消费者侧；与 push 的 acquire 成对
+        // release：把「已释放消费槽」这一事实发布给**生产者**侧；与 push 的 tail_.load(acquire) 成对
         tail_.store((t + 1) % Capacity, std::memory_order_release);
         return true;
     }
@@ -371,8 +372,11 @@ public:
         // ... 填充 b ...
         b.sequence = md.seq;
 
-        // 与读者侧配对：先完成对 books_[write_slot] 的写，再切换到下一代 gen
-        version_.store(v + 2, std::memory_order_seq_cst);
+        // release store：先完成对 books_[write_slot] 的所有写，再切换版本号
+        // 读者侧用 acquire load 即可与此配对，无需 seq_cst；
+        // 用 seq_cst 语义上不错但会在 x86 上多出一条 MFENCE/带 LOCK 的写，
+        // 与本文后面"seq_cst Store 代价更高"的分析相矛盾，此处改用 release。
+        version_.store(v + 2, std::memory_order_release);
     }
 
     bool read(Book& out) {
@@ -522,8 +526,12 @@ public:
     // 获取当前快照引用，期间快照不会被释放
     Snapshot* acquire_snapshot() {
         Snapshot* snap = current_.load(std::memory_order_acquire);
-        // acquire 保证：读到 snap 指针后，对 snap 内容的访问
-        // 不会被重排到 load 之前，即内容对我们是可见的
+        // ⚠️ 经典 TOCTTOU 竞态：load 与 fetch_add 之间不是原子的。
+        // 另一线程可能在此期间完成 CAS 替换 current_，并将旧 snap 的
+        // ref_count 减到 0 执行 delete snap；随后本线程的 fetch_add
+        // 落在悬空指针上，产生 UAF。
+        // 正确实现需要 hazard pointer、RCU，或在 CAS 循环里先 fetch_add
+        // 再验证 current_ 未变（乐观引用计数），此处仅作模式示意。
         snap->ref_count.fetch_add(1, std::memory_order_relaxed);
         return snap;
     }
@@ -629,7 +637,9 @@ public:
 
 ```
 需要原子操作吗？
-├── 否 → 普通变量，注意编译器不要优化掉（volatile 或 WRITE_ONCE）
+├── 否 → 普通变量（单线程访问，或已有外部同步保护）
+│       Linux 内核中用 WRITE_ONCE/READ_ONCE 防止编译器把访问合并/消除；
+│       通用 C++ 里 volatile 不是线程同步工具，不要在这里使用它（见 §5）
 └── 是
     ├── 只关心操作本身原子，不关心顺序？
     │   └── memory_order_relaxed
