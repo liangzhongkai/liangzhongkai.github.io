@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Kevin Leung</title><link>https://liangzhongkai.github.io/</link><description>Recent content on Kevin Leung</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Tue, 12 May 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://liangzhongkai.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>x86 TSO 下 C++ Memory Order</title><link>https://liangzhongkai.github.io/posts/x86_tso_memory_order/</link><pubDate>Tue, 12 May 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/x86_tso_memory_order/</guid><description>&lt;h1 id="x86-tso-下-c-memory-order"&gt;x86 TSO 下 C++ Memory Order&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;全文按两条线展开：&lt;strong&gt;C++ 内存模型&lt;/strong&gt;告诉我们「要证明什么成立」；&lt;strong&gt;x86 的内存次序契约&lt;/strong&gt;（多用 TSO 来教）帮助估计「落到这门 ISA 上大概会长成什么指令」。Store Buffer、MESI 等只在后文用作直觉；真的拍板时，仍以 &lt;strong&gt;SDM / ISA 手册与语言标准里的可观察语义&lt;/strong&gt; 为准。文末用 HFT、Web3 里的 lock-free / wait-free 片段做侧写，代码多为示意。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="1-x86-的内存模型tso"&gt;1. x86 的内存模型：TSO&lt;/h2&gt;
+&lt;p&gt;x86 常放在 &lt;strong&gt;TSO（Total Store Order）&lt;/strong&gt; 这一族里来讲：软件能指望的「全局先后」比 ARMv8、POWER 一类弱模型紧得多，但又&lt;strong&gt;达不到&lt;/strong&gt;教科书式的顺序一致性（SC）。SC 要求所有核仿佛共享同一串读写次序；TSO 则仍允许 &lt;strong&gt;§3&lt;/strong&gt; 要展开的那种 &lt;strong&gt;Store→Load&lt;/strong&gt; 隙缝——所以归根结底仍是弱序，只是 &lt;strong&gt;「弱序里偏强的一档」&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;相对 SC，程序员在 x86 上最需要盯紧的就一件事：&lt;strong&gt;同一线程里，本核较晚发起的 Load 的结果已对自身可见、也可被别的核观察到，但本核较早发起的 Store 却可能还没对其他核生效&lt;/strong&gt;——口语里常说 Store Buffer 或 &lt;em&gt;Store→Load&lt;/em&gt; 重排。换个角度：外部观察者可能&amp;quot;先看到你后发的读的效果，再看到你先发的写&amp;quot;。另一方面，下面这些是在 &lt;strong&gt;架构内存模型&lt;/strong&gt; 里写明、而不是某代流水线「碰巧如此」的约束：&lt;strong&gt;较新 Load 不能越过较旧 Load；较新 Store 不能越过较旧 Store；较新 Store 也不能越过较旧 Load&lt;/strong&gt;。若要抠定义，请直接查 Intel/AMD SDM 第 8 章及你所用工具链对原子 intrinsic 的说明。&lt;/p&gt;</description></item><item><title>Damn Vulnerable DeFi 图解手记：18 关解题地图</title><link>https://liangzhongkai.github.io/posts/damn-vulnerable-defi-walkthrough/</link><pubDate>Thu, 07 May 2026 14:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/damn-vulnerable-defi-walkthrough/</guid><description>手绘流程图串起 Damn Vulnerable DeFi v4 各关核心漏洞与攻击路径，便于复习与对照源码。</description></item><item><title>UniswapX：intent-based protocol</title><link>https://liangzhongkai.github.io/posts/uniswapx/</link><pubDate>Wed, 29 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/uniswapx/</guid><description>&lt;h1 id="uniswapxintent-based-protocol"&gt;UniswapX：intent-based protocol&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;把&amp;quot;想做什么&amp;quot;和&amp;quot;怎么做到&amp;quot;分开 —— 整个 UniswapX 是这一句话的全部展开。&lt;/p&gt;
+&lt;p&gt;从一条公理出发，逐层推出协议的全部组件、安全边界与扩展形态。可以同样解读 intent-based 协议（CowSwap、1inch Fusion、Across、ERC-7683…）。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="0-总览"&gt;0. 总览&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;[公理] 用户只关心结果，不关心路径
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├─ 推论 A (角色)：意图与执行分离 → Swapper / Filler / Reactor
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └─ Reactor 不与任何 DEX 交互：只裁判，不下场
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├─ 推论 B (签名)：链上不可信用户离线 → 签名必须既授权又锁定全部参数
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └─ Permit2 + witness：一次签名 = 转账许可 + 订单防篡改
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├─ 推论 C (定价)：执行权外包 ⇒ 必须有&amp;#34;无信任、无撮合&amp;#34;的价格发现
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └─ Dutch Auction：用时间作为唯一变量驱动竞争
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├─ 推论 D (原子性)：Filler 不可信 ⇒ 必须强制&amp;#34;先付款给用户，再划走 tokenIn&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └─ callback 先于 transferFrom + 余额 diff 验证
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├─ 推论 E (启动)：荷兰拍依赖竞争 ⇒ 单一 Filler 时需补激励
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └─ Exclusivity 独占期 + override bps 惩罚
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├─ 推论 F (迁移)：合约只验结果 ⇒ 执行环境无关
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └─ 同一签名模型天然推广到跨链 (V2 / ERC-7683)
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; └─ 推论 G (副作用)：所有攻击与边界都来自上面六条
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; └─ FoT / Typestring / Validation DoS / Decay 边界
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;每一节对应一条推论。读完任意一节，你应该能从公理重新推导出该节的存在性。&lt;/p&gt;</description></item><item><title>DeFi 签名机制</title><link>https://liangzhongkai.github.io/posts/defi-signatures/</link><pubDate>Thu, 23 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/defi-signatures/</guid><description>&lt;h1 id="defi-签名机制"&gt;DeFi 签名机制&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;签名是 Web3 世界里最被低估的基础设施。每一次你点击&amp;quot;Sign&amp;quot;，背后都是一段密码学历史的缩影。本文试图从底层原理出发，梳理 DeFi 中各类签名机制的发展脉络与安全边界。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="目录"&gt;目录&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="#%E4%B8%80%E5%AF%86%E7%A0%81%E5%AD%A6%E7%AD%BE%E5%90%8D%E7%9A%84%E6%9C%AC%E8%B4%A8"&gt;密码学签名的本质&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E4%BA%8Cecdsa%E4%BB%A5%E5%A4%AA%E5%9D%8A%E7%9A%84%E5%9F%BA%E7%9F%B3"&gt;ECDSA：以太坊的基石&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E4%B8%89%E9%93%BE%E4%B8%8A%E7%AD%BE%E5%90%8D%E7%9A%84%E6%BC%94%E8%BF%9B"&gt;链上签名的演进&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#31-eth_sign%E5%8E%9F%E5%A7%8B%E6%97%B6%E4%BB%A3"&gt;eth_sign：原始时代&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#32-personal_sign%E5%8A%A0%E7%9B%90%E7%9A%84%E5%B0%9D%E8%AF%95"&gt;personal_sign：加盐的尝试&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#33-eip-712%E7%BB%93%E6%9E%84%E5%8C%96%E6%97%B6%E4%BB%A3"&gt;EIP-712：结构化时代&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%9B%9B%E6%8E%88%E6%9D%83%E7%AD%BE%E5%90%8D%E7%9A%84%E9%9D%A9%E5%91%BDpermit-%E5%AE%B6%E6%97%8F"&gt;授权签名的革命：Permit 家族&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#41-erc-20-permit-eip-2612"&gt;ERC-20 Permit (EIP-2612)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#42-permit2uniswap-%E7%9A%84%E7%BB%9F%E4%B8%80%E5%B1%82"&gt;Permit2：Uniswap 的统一层&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E4%BA%94%E5%A4%9A%E7%AD%BE%E4%B8%8E%E9%98%88%E5%80%BC%E7%AD%BE%E5%90%8D"&gt;多签与阈值签名&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#51-multisig-%E5%90%88%E7%BA%A6gnosis-safe"&gt;Multisig 合约（Gnosis Safe）&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#52-mpc--tss%E9%93%BE%E4%B8%8B%E5%8D%8F%E5%90%8C"&gt;MPC / TSS：链下协同&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%85%AD%E8%B4%A6%E6%88%B7%E6%8A%BD%E8%B1%A1%E6%97%B6%E4%BB%A3%E7%9A%84%E7%AD%BE%E5%90%8D"&gt;账户抽象时代的签名&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#61-erc-4337-%E4%B8%8E-useroperation"&gt;ERC-4337 与 UserOperation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#62-eip-7702eoa-%E7%9A%84%E9%80%86%E8%A2%AD"&gt;EIP-7702：EOA 的逆袭&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#63-7702-%E4%B8%8E-4337-%E7%9A%84%E7%94%9F%E6%80%81%E5%8D%9A%E5%BC%88"&gt;7702 与 4337 的生态博弈&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E4%B8%83%E5%85%B6%E4%BB%96%E7%AD%BE%E5%90%8D%E5%8E%9F%E8%AF%ADbls-schnorr-musig2"&gt;其他签名原语：BLS、Schnorr、MuSig2&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#71-bls%E8%81%9A%E5%90%88%E7%AD%BE%E5%90%8D%E4%B8%8E%E5%85%B1%E8%AF%86%E5%B1%82%E7%9A%84%E5%9F%BA%E7%9F%B3"&gt;BLS：聚合签名与共识层的基石&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#72-schnorr-%E4%B8%8E-musig2%E6%AF%94%E7%89%B9%E5%B8%81%E7%9A%84%E6%96%B0%E8%8C%83%E5%BC%8F"&gt;Schnorr 与 MuSig2：比特币的新范式&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%85%ABsession-keyintent-%E4%B8%8E%E7%AD%BE%E5%90%8D%E8%AF%AD%E4%B9%89%E7%9A%84%E4%B8%8A%E7%A7%BB"&gt;Session Key、Intent 与签名语义的上移&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#81-session-key-%E4%B8%8E-erc-7715"&gt;Session Key 与 ERC-7715&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#82-intent-%E5%8D%8F%E8%AE%AE%E7%9A%84%E7%AD%BE%E5%90%8D%E6%A8%A1%E5%9E%8Bcowuniswapxacross"&gt;Intent 协议的签名模型：CoW、UniswapX、Across&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E4%B9%9D%E7%AD%BE%E5%90%8D%E7%9A%84%E5%AE%89%E5%85%A8%E8%BE%B9%E7%95%8C%E4%B8%8E%E6%94%BB%E5%87%BB%E9%9D%A2"&gt;签名的安全边界与攻击面&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%8D%81%E8%B7%A8%E9%93%BE%E4%B8%8E-l2-%E7%9A%84%E7%AD%BE%E5%90%8D%E5%B7%A5%E7%A8%8B"&gt;跨链与 L2 的签名工程&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%8D%81%E4%B8%80%E6%9C%AA%E6%9D%A5%E5%B1%95%E6%9C%9B%E7%AD%BE%E5%90%8D%E7%9A%84%E4%B8%8B%E4%B8%80%E7%AB%99"&gt;未来展望：签名的下一站&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%8D%81%E4%BA%8C%E7%AD%BE%E5%90%8D%E7%B1%BB%E5%9E%8B%E9%80%9F%E6%9F%A5%E8%A1%A8"&gt;签名类型速查表&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id="一密码学签名的本质"&gt;一、密码学签名的本质&lt;/h2&gt;
+&lt;p&gt;在理解 DeFi 中的各类签名之前，我们需要回到最根本的问题：&lt;strong&gt;签名是什么？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;密码学签名解决的是一个古老的问题：&lt;strong&gt;如何在不可信的信道中，证明一条消息确实来自某个特定的发送者，且未被篡改？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;传统数字签名基于非对称密码学，由三个算法构成：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;KeyGen() → (私钥 sk, 公钥 pk)
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Sign(sk, m) → 签名 σ
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Verify(pk, m, σ) → {true, false}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;其安全性依赖于数学难题：拥有公钥的人无法在多项式时间内推导出私钥。在区块链语境中，这意味着：&lt;/p&gt;</description></item><item><title>拍卖机制</title><link>https://liangzhongkai.github.io/posts/auction_mechanisms/</link><pubDate>Tue, 21 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/auction_mechanisms/</guid><description>&lt;h1 id="拍卖机制"&gt;拍卖机制&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&amp;ldquo;拍卖不是买卖，是信息博弈。&amp;rdquo;&lt;/em&gt;&lt;br&gt;
+—— 威廉·维克里（William Vickrey），1996年诺贝尔经济学奖得主&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="1-什么是拍卖"&gt;1. 什么是拍卖？&lt;/h2&gt;
+&lt;p&gt;拍卖的本质是一种&lt;strong&gt;在信息不对称条件下的资源分配机制&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;普通买卖中，价格是已知的。拍卖之所以存在，是因为卖方&lt;strong&gt;不知道买方愿意支付多少&lt;/strong&gt;——每个竞买人心中有一个私有估值（private valuation），卖方无法直接读取。拍卖机制的天才之处，在于通过竞争博弈，&lt;strong&gt;诱使竞买人自愿揭示这一信息&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3 id="11-拍卖的三个核心元素"&gt;1.1 拍卖的三个核心元素&lt;/h3&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;元素&lt;/th&gt;
+&lt;th&gt;定义&lt;/th&gt;
+&lt;th&gt;设计变量&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;竞买人的估值&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;每位竞买人对标的物的主观愿付价格&lt;/td&gt;
+&lt;td&gt;私有 vs 共同价值&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;出价规则&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;如何报价、何时报价、能否修改&lt;/td&gt;
+&lt;td&gt;开放 vs 密封&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;成交规则&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;谁赢、赢家付多少钱&lt;/td&gt;
+&lt;td&gt;最高价 vs 次高价&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id="12-私有价值-vs-共同价值"&gt;1.2 私有价值 vs 共同价值&lt;/h3&gt;
+&lt;p&gt;理解这一区分，是设计一切拍卖的基础。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;私有价值（Private Value）&lt;/strong&gt;&lt;br&gt;
+每位竞买人的估值完全独立，不受他人影响。&lt;br&gt;
+&lt;em&gt;典型场景&lt;/em&gt;：艺术品收藏、个人闲置物品、具有独特情感意义的标的物。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;共同价值（Common Value）&lt;/strong&gt;&lt;br&gt;
+标的物存在一个客观价值，但每人持有的信息不同，估值因此不同。&lt;br&gt;
+&lt;em&gt;典型场景&lt;/em&gt;：石油开采权、矿产拍卖、国债拍卖——标的物的&amp;quot;真实价值&amp;quot;是固定的，但各方掌握的地质/市场信息不同。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;相互依存价值（Interdependent Value）&lt;/strong&gt;&lt;br&gt;
+我的估值受你的估值影响。介于两者之间。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;设计启示&lt;/strong&gt;：共同价值场景中，竞买人需要担忧&amp;quot;赢家诅咒&amp;quot;，出价会更保守，卖方应采取开放式拍卖（让信息流通）以提高收益。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="2-四种经典拍卖形式"&gt;2. 四种经典拍卖形式&lt;/h2&gt;
+&lt;h3 id="21-英式拍卖english-auction-升价公开竞价"&gt;2.1 英式拍卖（English Auction）—— 升价公开竞价&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;机制&lt;/strong&gt;：从低价起拍，竞买人公开喊价，价格不断上升，直到只剩一人。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;起拍价: ¥1,000
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;→ A: ¥1,200
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;→ B: ¥1,500
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;→ A: ¥1,800
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;→ B 放弃
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;成交: A，¥1,800
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;优点&lt;/strong&gt;：&lt;/p&gt;</description></item><item><title>Uniswap V4 TWAMM Hook</title><link>https://liangzhongkai.github.io/posts/uniswap-v4-twamm-hook/</link><pubDate>Mon, 13 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/uniswap-v4-twamm-hook/</guid><description>结合 Uniswap v4-core 与 example-contracts 中的 TWAMM.sol，逐段拆解 Hook 权限、虚拟执行、tick crossing、收益因子与 flash accounting 的实现细节。</description></item><item><title>Uniswap V4 Assembly</title><link>https://liangzhongkai.github.io/posts/uniswap-v4-assembly/</link><pubDate>Sun, 12 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/uniswap-v4-assembly/</guid><description>结合 Uniswap v4-core 源码，系统拆解 Uniswap V4 在状态压缩、瞬态存储、Hook 调用与错误处理中的 Assembly 模式。</description></item><item><title>Uniswap V4 Limit Order</title><link>https://liangzhongkai.github.io/posts/uniswap-v4-limit-order/</link><pubDate>Sat, 11 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/uniswap-v4-limit-order/</guid><description>结合 v4-core 与官方 LimitOrder 示例，解释 Uniswap V4 如何通过 Hook、unlock 与 ERC-6909 实现链上限价单。</description></item><item><title>Uniswap V4 Custom Accounting</title><link>https://liangzhongkai.github.io/posts/uniswap-v4-custom-accounting/</link><pubDate>Fri, 10 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/uniswap-v4-custom-accounting/</guid><description>基于 v4-core 源码，系统拆解 Flash Accounting、BalanceDelta 与 BeforeSwapDelta 的符号方向，以及 swap、hook 与 settle/take/clear 的记账与结算逻辑。</description></item><item><title>Uniswap V4 Dynamic Fees</title><link>https://liangzhongkai.github.io/posts/uniswap-v4-dynamic-fees/</link><pubDate>Fri, 10 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/uniswap-v4-dynamic-fees/</guid><description>基于 v4-core 源码，说明动态费率标记位、updateDynamicLPFee 与 beforeSwap 覆盖两条路径，以及费率校验与权限。</description></item><item><title>Uniswap V4 Math</title><link>https://liangzhongkai.github.io/posts/uniswap-v4-math/</link><pubDate>Wed, 08 Apr 2026 12:25:21 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/uniswap-v4-math/</guid><description>&lt;h1 id="uniswap-v4-core数学库源码实现机制"&gt;Uniswap V4 Core：数学库源码实现机制&lt;/h1&gt;
+&lt;p&gt;本文档说明 &lt;code&gt;src/libraries&lt;/code&gt; 中与定价、swap、流动性、tick 相关的数学库：&lt;strong&gt;算什么&lt;/strong&gt;、&lt;strong&gt;源码如何高效实现&lt;/strong&gt;，并配有原理示意图（Mermaid）。第三方依赖（如 &lt;code&gt;lib/solmate&lt;/code&gt;）不在此列。&lt;/p&gt;
+&lt;h2 id="附图索引按库"&gt;附图索引（按库）&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;库 / 主题&lt;/th&gt;
+&lt;th&gt;图号&lt;/th&gt;
+&lt;th&gt;内容&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;约定&lt;/td&gt;
+&lt;td&gt;下文各节&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;源码&lt;/strong&gt;摘录 + &lt;strong&gt;隐藏细节&lt;/strong&gt;（gas、舍入、边界、汇编意图）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;总览&lt;/td&gt;
+&lt;td&gt;§总览&lt;/td&gt;
+&lt;td&gt;价格表示与库关系&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;FixedPoint96/128&lt;/td&gt;
+&lt;td&gt;§定点&lt;/td&gt;
+&lt;td&gt;Q128.128 → Q128.96 → &lt;code&gt;uint160&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;FullMath&lt;/td&gt;
+&lt;td&gt;§FullMath&lt;/td&gt;
+&lt;td&gt;512 位乘除流水线；ceil&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;UnsafeMath&lt;/td&gt;
+&lt;td&gt;§UnsafeMath&lt;/td&gt;
+&lt;td&gt;向上取整除法&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;SafeCast&lt;/td&gt;
+&lt;td&gt;§SafeCast&lt;/td&gt;
+&lt;td&gt;窄化校验&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;BitMath&lt;/td&gt;
+&lt;td&gt;§BitMath&lt;/td&gt;
+&lt;td&gt;MSB / LSB 两条路径&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TickMath&lt;/td&gt;
+&lt;td&gt;§TickMath&lt;/td&gt;
+&lt;td&gt;tick→√P；√P→tick&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;SqrtPriceMath&lt;/td&gt;
+&lt;td&gt;§SqrtPriceMath&lt;/td&gt;
+&lt;td&gt;舍入方向&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;SwapMath&lt;/td&gt;
+&lt;td&gt;§SwapMath&lt;/td&gt;
+&lt;td&gt;目标价；computeSwapStep&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;LiquidityMath&lt;/td&gt;
+&lt;td&gt;§LiquidityMath&lt;/td&gt;
+&lt;td&gt;uint128 加法溢出&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;LPFeeLibrary&lt;/td&gt;
+&lt;td&gt;§LPFee&lt;/td&gt;
+&lt;td&gt;费率位域&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ProtocolFeeLibrary&lt;/td&gt;
+&lt;td&gt;§ProtocolFee&lt;/td&gt;
+&lt;td&gt;打包与合成费&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TickBitmap&lt;/td&gt;
+&lt;td&gt;§TickBitmap&lt;/td&gt;
+&lt;td&gt;字/位；左右扫描&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;依赖&lt;/td&gt;
+&lt;td&gt;§依赖&lt;/td&gt;
+&lt;td&gt;库调用关系总图&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2 id="总览"&gt;总览&lt;/h2&gt;
+&lt;p&gt;V4 在链上把&lt;strong&gt;价格&lt;/strong&gt;表示为 $\sqrt{P}$ 的 &lt;strong&gt;Q64.96&lt;/strong&gt; 定点数（&lt;code&gt;sqrtPriceX96&lt;/code&gt;），刻度满足 $P = 1.0001^{\text{tick}}$。数量变化、单步 swap、手续费叠加等，依赖：&lt;/p&gt;</description></item></channel></rss>
