@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Other on Kevin Leung</title><link>https://liangzhongkai.github.io/tags/other/</link><description>Recent content in Other on Kevin Leung</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Tue, 21 Apr 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://liangzhongkai.github.io/tags/other/index.xml" rel="self" type="application/rss+xml"/><item><title>拍卖机制</title><link>https://liangzhongkai.github.io/posts/auction_mechanisms/</link><pubDate>Tue, 21 Apr 2026 10:00:00 +0800</pubDate><guid>https://liangzhongkai.github.io/posts/auction_mechanisms/</guid><description>&lt;h1 id="拍卖机制"&gt;拍卖机制&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&amp;ldquo;拍卖不是买卖，是信息博弈。&amp;rdquo;&lt;/em&gt;&lt;br&gt;
+—— 威廉·维克里（William Vickrey），1996年诺贝尔经济学奖得主&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="1-什么是拍卖"&gt;1. 什么是拍卖？&lt;/h2&gt;
+&lt;p&gt;拍卖的本质是一种&lt;strong&gt;在信息不对称条件下的资源分配机制&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;普通买卖中，价格是已知的。拍卖之所以存在，是因为卖方&lt;strong&gt;不知道买方愿意支付多少&lt;/strong&gt;——每个竞买人心中有一个私有估值（private valuation），卖方无法直接读取。拍卖机制的天才之处，在于通过竞争博弈，&lt;strong&gt;诱使竞买人自愿揭示这一信息&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3 id="11-拍卖的三个核心元素"&gt;1.1 拍卖的三个核心元素&lt;/h3&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;元素&lt;/th&gt;
+&lt;th&gt;定义&lt;/th&gt;
+&lt;th&gt;设计变量&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;竞买人的估值&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;每位竞买人对标的物的主观愿付价格&lt;/td&gt;
+&lt;td&gt;私有 vs 共同价值&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;出价规则&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;如何报价、何时报价、能否修改&lt;/td&gt;
+&lt;td&gt;开放 vs 密封&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;成交规则&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;谁赢、赢家付多少钱&lt;/td&gt;
+&lt;td&gt;最高价 vs 次高价&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id="12-私有价值-vs-共同价值"&gt;1.2 私有价值 vs 共同价值&lt;/h3&gt;
+&lt;p&gt;理解这一区分，是设计一切拍卖的基础。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;私有价值（Private Value）&lt;/strong&gt;&lt;br&gt;
+每位竞买人的估值完全独立，不受他人影响。&lt;br&gt;
+&lt;em&gt;典型场景&lt;/em&gt;：艺术品收藏、个人闲置物品、具有独特情感意义的标的物。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;共同价值（Common Value）&lt;/strong&gt;&lt;br&gt;
+标的物存在一个客观价值，但每人持有的信息不同，估值因此不同。&lt;br&gt;
+&lt;em&gt;典型场景&lt;/em&gt;：石油开采权、矿产拍卖、国债拍卖——标的物的&amp;quot;真实价值&amp;quot;是固定的，但各方掌握的地质/市场信息不同。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;相互依存价值（Interdependent Value）&lt;/strong&gt;&lt;br&gt;
+我的估值受你的估值影响。介于两者之间。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;设计启示&lt;/strong&gt;：共同价值场景中，竞买人需要担忧&amp;quot;赢家诅咒&amp;quot;，出价会更保守，卖方应采取开放式拍卖（让信息流通）以提高收益。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="2-四种经典拍卖形式"&gt;2. 四种经典拍卖形式&lt;/h2&gt;
+&lt;h3 id="21-英式拍卖english-auction-升价公开竞价"&gt;2.1 英式拍卖（English Auction）—— 升价公开竞价&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;机制&lt;/strong&gt;：从低价起拍，竞买人公开喊价，价格不断上升，直到只剩一人。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;起拍价: ¥1,000
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;→ A: ¥1,200
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;→ B: ¥1,500
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;→ A: ¥1,800
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;→ B 放弃
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;成交: A，¥1,800
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;优点&lt;/strong&gt;：&lt;/p&gt;</description></item></channel></rss>
